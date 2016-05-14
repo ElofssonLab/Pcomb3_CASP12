@@ -281,6 +281,14 @@ foreach $stage(@stagelist){
                             $s_pcomb = sprintf("%.3f",$s_pcomb);
                         }
                     }
+
+                    # fix the bug 2016-05-14, so that the pcomb value will be
+                    # in real number format x.x, not 15, The QA model for T0862
+                    # and T0863 has been rejected by the CASP 12 server due to
+                    # this error
+                    if ($s_pcomb ne 'X'){
+                        $s_pcomb = sprintf("%.3f",$s_pcomb);
+                    }
                     push(@newlist, $s_pcomb);
                 }
                 print DAT "$modelname $pcomb_s ". join(" ", @newlist) . "\n";
@@ -299,7 +307,7 @@ foreach $stage(@stagelist){
         close(MAIL);
         # fixed the bug 2014-05-12, try to filter emsembles from pcons.net to
         # the QA output file
-        `sort -k2,2rg $out_datfile | grep -v "pcons.*pdb" | awk '{for(i=1;i<=NF;i++){printf("%s ",\$i); if(i%20==0){printf("\\n")}}printf("\\n")}'>> $out_mailfile`;
+        `sort -k2,2rg $out_datfile | grep -v "pcons.*pdb" | awk '{for(i=1;i<=NF;i++){printf("%s ",\$i); if(i%50==0){printf("\\n")}}printf("\\n")}'>> $out_mailfile`;
         `echo END >> $out_mailfile`;
 
         if ($stage eq "all"){ # we do not send the result for the merged tarball
