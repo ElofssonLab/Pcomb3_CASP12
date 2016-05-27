@@ -9,6 +9,10 @@ my $rundir = dirname(abs_path($0));
 #ChangeLog 2014-07-02 
 #   filter HETATM record from the model files, otherwise proq3 score.linuxxxx
 #   may fail
+#ChangeLog 2016-05-27
+#   For proq3, those scores below 0 and above 1 should not be ignored, the way
+#   to merge them with pcons score are chagned accordingly
+#
 my $exec_proq3 = "/data3/software/proq3/run_proq3.sh";
 my $exec_pcons = "/var/www/pcons/bin/pcons.linux";
 my $CASP_TS_DIR = "/var/www/pcons/CASP12/TS";
@@ -176,6 +180,8 @@ foreach $stage(@stagelist){
                         $proq3res_dict{$i} = $proq3res_score[$i];
                     }
                 }else{
+                # if the model length is not equivalent to the target length,
+                # do sequence alignment and get residue index mapping
                     my $aln_target_model_file = "$WORKDIR/proq3/$folder/$modelname.aln";
                     my $modelseq_fa =  "$WORKDIR/proq3/$folder/$modelname.fasta";
                     $cmd = "$needle $targetseq_fa $modelseq_fa -m 1 -o $aln_target_model_file  ";
@@ -258,28 +264,19 @@ foreach $stage(@stagelist){
 
                     my $s_pcomb ;
 
-                    if($s_pcons eq "X" || ($s_proq3 < 0 || $s_proq3 >1))
-                    #if($s_pcons eq "X" )
-                    {
+                    if($s_pcons eq "X" ) {
                         print "$folder, $stage, $modelname, s_pcons[$i]=$s_pcons, s_proq3[$i] = $s_proq3\n";
-                        if ($s_pcons ne 'X'){
-                            $s_pcomb = $s_pcons;
-                        }elsif($s_proq3>=0 && $s_proq3 <= 1){
+                        if ($s_proq3 ne ''){
                             $s_pcomb = S2d($s_proq3);
                         }else{
                             $s_pcomb = "X";
                         }
-                    }
-                    else
-                    {
+                    } else {
                         $s_pcomb = S2d(0.8*d2S($s_pcons)+0.2*$s_proq3);
-                        #if ($s_pcomb eq "nan" || $s_pcomb < 0 || $s_pcomb > 1)
-                        if ($s_pcomb eq "nan" || $s_pcomb < 0)
-                        {
-                            $s_pcomb = 'X';
-                        }else{
-                            $s_pcomb = sprintf("%.3f",$s_pcomb);
+                        if ($s_pcomb < 0.0) {
+                            $s_pcomb = 0.0;
                         }
+                        $s_pcomb = sprintf("%.3f",$s_pcomb);
                     }
 
                     # fix the bug 2016-05-14, so that the pcomb value will be
@@ -414,13 +411,13 @@ sub S2d#{{{
     if($S>0.03846) # this is the S score for 15 angstroms
     {
         if($S>=1)
-    {    
-        $rmsd=0;
-    }
-    else
-    {
-        $rmsd=sqrt(1/$S-1)*$d0;
-    }
+        {    
+            $rmsd=0;
+        }
+        else
+        {
+            $rmsd=sqrt(1/$S-1)*$d0;
+        }
     }
     return $rmsd;
 }#}}}
