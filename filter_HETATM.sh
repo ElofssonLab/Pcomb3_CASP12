@@ -15,7 +15,7 @@ Options:
   -q                Quiet mode
   -h, --help        Print this help message and exit
 
-Created 2014-07-02, updated 2014-07-02, Nanjiang Shu
+Created 2014-07-02, updated 2016-06-03, Nanjiang Shu
 "
 PrintHelp(){ #{{{
     echo "$usage"
@@ -32,6 +32,7 @@ FilterHETATM(){ #{{{
             echo "$infile filtered"
         fi
     fi
+    /bin/rm -f $tmpfile
 }
 #}}}
 
