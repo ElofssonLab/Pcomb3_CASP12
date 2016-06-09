@@ -1,7 +1,10 @@
 #!/bin/bash
 
 rundir=`dirname $0`
-$rundir/download_prediction.sh
-$rundir/run_QA_proq3.pl
-$rundir/archive_QA.sh
-$rundir/backupto_triolith.sh
+
+cd $rundir
+./clean_bad_predictions.sh
+./download_prediction.sh
+./run_QA_proq3.pl
+./archive_QA.sh
+./backupto_triolith.sh
