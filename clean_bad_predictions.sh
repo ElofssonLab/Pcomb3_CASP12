@@ -15,9 +15,9 @@ done
 for stage in all stage1 stage2; do  
     for file in $(find $stage -name "*.proq3.local"); do 
         content=$(cat $file  | awk '{if (NF != 4) {print} }')
-        if [ "$content" != "" ];then 
-            basename=$(basename $file .local); 
-            rm -f  $basename.local $basename.global
+        if [ "$content" != "" ];then
+            stemname=${file%.local}
+            rm -f  $stemname.local $stemname.global
         fi
     done
 done
