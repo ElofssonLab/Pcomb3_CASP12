@@ -163,7 +163,7 @@ foreach $stage(@stagelist){
                 my $proq3_s = "";
                 my $tmp_proq3_s = `cat $proq3file | tail -n 1 | awk '{print \$4}'`;
                 chomp($tmp_proq3_s);
-                if (looks_like_number($tmp_proq3_s){
+                if (looks_like_number($tmp_proq3_s)){
                     $proq3_s = $tmp_proq3_s;
                 }
                 # read in proq3 local prediction
