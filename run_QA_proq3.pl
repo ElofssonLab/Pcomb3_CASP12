@@ -5,6 +5,7 @@ use File::Spec;
 use File::Temp;
 my $rundir = dirname(abs_path($0));
 
+use  Scalar::Util qw(looks_like_number);
 
 #ChangeLog 2014-07-02 
 #   filter HETATM record from the model files, otherwise proq3 score.linuxxxx
@@ -158,14 +159,12 @@ foreach $stage(@stagelist){
                 $proq3resfile = "$WORKDIR/proq3/$folder/$modelname.pdb.proq3.local";
             }
             if(-e $proq3file && -e $proq3resfile && defined($pcons_score{$modelname}) && defined($local_quality{$modelname})) {
-                my $proq3_str = `cat $proq3file | tail -n 1`;
-                chomp($proq3_str);
-                my @temp = split(/\s+/, $proq3_str);
+                # read in proq3 global prediction
                 my $proq3_s = "";
-                if (scalar(@temp) > 2){
-                    $proq3_s = $temp[3];
-                }else{
-                    next;
+                my $tmp_proq3_s = `cat $proq3file | tail -n 1 | awk '{print \$4}'`;
+                chomp($tmp_proq3_s);
+                if (looks_like_number($tmp_proq3_s){
+                    $proq3_s = $tmp_proq3_s;
                 }
                 # read in proq3 local prediction
                 #==================
@@ -222,7 +221,7 @@ foreach $stage(@stagelist){
 
                 #==================
 
-                if ($proq3_s eq "nan" || $proq3_s < 0 || $proq3_s > 1){
+                if ($proq3_s eq "nan" || $proq3_s eq ""){
                     #if got wired proq3 score, recalculate it from the local
                     #proq3 score
                     my $sum = 0;

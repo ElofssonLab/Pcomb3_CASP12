@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # clean bad acc predictions
+
 filelist=$(for stage in all stage1 stage2; do find $stage -name "sequence.*.acc" -size -2c ; done)
 for file in $filelist; do 
     dirname=`dirname $file`; echo $dirname; rm -f $dirname/sequence.fasta.*; 
