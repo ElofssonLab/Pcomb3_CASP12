@@ -73,10 +73,6 @@ foreach $stage(@stagelist){
         print "Tarball: $tarball\n";
         #next;
 
-        if (-f $tarball && -M $tarball > 2.0){
-            print "$tarball older than 2 days, Ignore.\n";
-            next;
-        }
         my $targetseq = "$CASP_TS_DIR/$folder/sequence";
         if ($folder =~ /-D1$/){
             my $origfolder = $folder;
@@ -326,6 +322,11 @@ foreach $stage(@stagelist){
                 if ($diff eq "" ){
                     $isSendMail = 0;
                 }
+            }
+
+            if (-f $tarball && -M $tarball > 2.0){
+                print "$tarball older than 2 days, Do not email results.\n";
+                $isSendMail = 0;
             }
 
             if ($isSendMail){
