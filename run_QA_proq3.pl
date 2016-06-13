@@ -29,6 +29,7 @@ my @to_email_list = (
 #     "nanjiang.shu\@gmail.com");
 
 my @stagelist = ("all", "stage1","stage2");
+#my @stagelist = ("all");
 my $date = localtime();
 
 print "\nStart $0 at $date\n\n";
@@ -72,6 +73,9 @@ foreach $stage(@stagelist){
         my $tarball = "$WORKDIR/$folder$stage_str.3D.srv.tar.gz";
         print "Tarball: $tarball\n";
         #next;
+#         if ($folder !~ "T0884"){
+#             next;
+#         }
 
         my $targetseq = "$CASP_TS_DIR/$folder/sequence";
         if ($folder =~ /-D1$/){
@@ -92,6 +96,13 @@ foreach $stage(@stagelist){
         if (! -d $outdir){
             `mkdir -p $outdir`;
         }
+
+        my $targetseq_in_fasta = "$WORKDIR/proq3/$folder/sequence.fa";
+        open(OUT, ">$targetseq_in_fasta");
+        print OUT ">$folder\n";
+        print OUT $seq."\n";
+        close(OUT);
+
         my $modellistfile = "$WORKDIR/proq3/$folder/pcons.input";
         `find $WORKDIR/$folder/ -type f -name "*TS[0-9]" > $modellistfile`;
         `find $WORKDIR/$folder/ -type f -name "*TS[0-9]*-D1" >> $modellistfile`;
@@ -99,7 +110,7 @@ foreach $stage(@stagelist){
 
 
         if (-s $modellistfile){
-            $cmd = "$exec_proq3 -fasta $targetseq -l $modellistfile -outpath $outdir ";
+            $cmd = "$exec_proq3 -fasta $targetseq_in_fasta -l $modellistfile -outpath $outdir ";
             $date = localtime();
             print "[$date]: $cmd\n";
             `$cmd`;

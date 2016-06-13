@@ -21,3 +21,13 @@ for stage in all stage1 stage2; do
         fi
     done
 done
+
+for stage in all stage1 stage2; do  
+    for file in $(find $stage -name "*.proq3.global"); do 
+        nline=$(cat $file  | wc -l )
+        if [ $nline -lt 2  ];then
+            stemname=${file%.global}
+            rm -f  $stemname.local $stemname.global
+        fi
+    done
+done
