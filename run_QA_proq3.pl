@@ -28,7 +28,7 @@ my @to_email_list = (
 # my @to_email_list = (
 #     "nanjiang.shu\@gmail.com");
 
-my @stagelist = ("all", "stage1","stage2");
+my @stagelist = ("stage1","stage2", "all");
 #my @stagelist = ("all");
 my $date = localtime();
 
@@ -68,7 +68,7 @@ foreach $stage(@stagelist){
             push(@job_folders,$folder);
         }
     }
-    foreach my $folder(sort @job_folders) {
+    foreach my $folder(reverse sort @job_folders) {
         print "Folder: $folder\n";
         my $tarball = "$WORKDIR/$folder$stage_str.3D.srv.tar.gz";
         print "Tarball: $tarball\n";
