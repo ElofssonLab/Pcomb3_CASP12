@@ -25,6 +25,6 @@ exec_cmd "tar -czf $outname.tar.gz $outpath/"
 # copy to pcons.net
 #1. load profile
 if [ -f $outname.tar.gz ];then
-    . /home/nanjiang/.bash_profile
+    eval `keychain --eval id_rsa_withph` 
     exec_cmd "/usr/bin/rsync -auz -e ssh $outname.tar.gz nanjiang.shu@pcons1.scilifelab.se:/var/www/html/pcons/CASP12/QA/"
 fi

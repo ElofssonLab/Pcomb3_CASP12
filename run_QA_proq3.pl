@@ -14,6 +14,12 @@ use  Scalar::Util qw(looks_like_number);
 #   For proq3, those scores below 0 and above 1 should not be ignored, the way
 #   to merge them with pcons score are chagned accordingly
 #
+
+my $usage = "
+usage $0 stage [stage ...]
+
+stage can be all, stage1, stage2
+";
 my $exec_proq3 = "/data3/software/proq3/run_proq3.sh";
 my $exec_pcons = "/var/www/pcons/bin/pcons.linux";
 my $CASP_TS_DIR = "/var/www/pcons/CASP12/TS";
@@ -28,8 +34,25 @@ my @to_email_list = (
 # my @to_email_list = (
 #     "nanjiang.shu\@gmail.com");
 
-my @stagelist = ("stage1","stage2", "all");
-#my @stagelist = ("all");
+my @stagelist = ();
+my $numArgs = $#ARGV+1;
+if($numArgs < 1) {
+    print "$usage\n";
+    exit;
+}
+if(@ARGV){#{{{
+    my $i = 0;
+    while($ARGV[$i]) {
+        if($ARGV[$i] eq "-h" || $ARGV[$i] eq "--help" ) {
+            print "$usage\n";
+            exit;
+        } else {
+            push @stagelist, $ARGV[$i];
+            $i += 1;
+        }
+    }
+}#}}}
+
 my $date = localtime();
 
 print "\nStart $0 at $date\n\n";

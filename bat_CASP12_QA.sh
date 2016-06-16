@@ -25,7 +25,11 @@ echo "Download CASP predictions..."
 ./download_prediction.sh
 
 echo "Run ProQ3..."
-./run_QA_proq3.pl
+./run_QA_proq3.pl stage1 &
+./run_QA_proq3.pl stage2 &
+./run_QA_proq3.pl all &
+
+wait
 
 echo "Archive Pcomb predictions..."
 ./archive_QA.sh
