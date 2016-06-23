@@ -251,12 +251,14 @@ foreach $stage(@stagelist){
 
                 #==================
 
+                # get global pcomb score
                 if ($proq3_s eq "nan" || $proq3_s eq ""){
                     #if got wired proq3 score, recalculate it from the local
                     #proq3 score
                     my $sum = 0;
                     foreach my $score(@proq3res_score){
-                        if($score>=0 && $score <=1){
+                        # the proq3 score can be negative or larger than 1
+                        if(looks_like_number($score)){
                             $sum += $score;
                         }
                     }
@@ -269,15 +271,27 @@ foreach $stage(@stagelist){
                 my $num_res_pcons = scalar(@pcons_local_score);
 
                 my $pcons_s = $pcons_score{$modelname};
-                my $pcomb_s = $pcons_s * 0.8 + $proq3_s * 0.2;
+                my $pcomb_global = $pcons_s * 0.8 + $proq3_s * 0.2; # global pcomb score
+                if (looks_like_number($pcomb_global)){
 
-#                 print join(" ", @proq3res_score) ."\n";
+                    if ($pcomb_global < 0.0){
+                        $pcomb_global = 0.0;
+                    }elsif($pcomb_global > 1.0){
+                        $pcomb_global = 1.0;
+                    }
+                    # convert pcomb_global in the real format x.xxx
+                    $pcomb_global = sprintf("%.3f",$pcomb_global);
+                }else{
+                    $pcomb_global = 'X';
+                }
+
 
                 if ($num_res_proq3 != $num_res_pcons){
                     print "num_res_pcons ($num_res_pcons) != num_res_proq3 ($num_res_proq3)\n";
 #                     next;
                 }
 
+                # get local pcomb scores
                 my @newlist = ();
                 for (my $i = 0 ; $i < $num_res_pcons; $i++){
                     my $s_pcons = $pcons_local_score[$i];
@@ -285,14 +299,11 @@ foreach $stage(@stagelist){
                     my $s_proq3 ;
                     if (defined($proq3res_dict{$i})){
                         $s_proq3 = $proq3res_dict{$i};
-#                         print "DEFINED\n";
                     }else{
                         $s_proq3 = -1;
-#                         print "NOT DEFINED\n";
                     }
 
-                    my $s_pcomb ;
-
+                    my $s_pcomb ; #local pcomb score
                     if($s_pcons eq "X" ) {
                         print "$folder, $stage, $modelname, s_pcons[$i]=$s_pcons, s_proq3[$i] = $s_proq3\n";
                         if ($s_proq3 ne ''){
@@ -302,10 +313,6 @@ foreach $stage(@stagelist){
                         }
                     } else {
                         $s_pcomb = S2d(0.8*d2S($s_pcons)+0.2*$s_proq3);
-                        if ($s_pcomb < 0.0) {
-                            $s_pcomb = 0.0;
-                        }
-                        $s_pcomb = sprintf("%.3f",$s_pcomb);
                     }
 
                     # fix the bug 2016-05-14, so that the pcomb value will be
@@ -313,11 +320,16 @@ foreach $stage(@stagelist){
                     # and T0863 has been rejected by the CASP 12 server due to
                     # this error
                     if ($s_pcomb ne 'X'){
+                        # finally, for any non 'X' pcomb score, set it as 0 if
+                        # it is negative
+                        if ($s_pcomb < 0.0){
+                            $s_pcomb = 0.0;
+                        }
                         $s_pcomb = sprintf("%.3f",$s_pcomb);
                     }
                     push(@newlist, $s_pcomb);
                 }
-                print DAT "$modelname $pcomb_s ". join(" ", @newlist) . "\n";
+                print DAT "$modelname $pcomb_global ". join(" ", @newlist) . "\n";
             }
         }
         close(DAT);
