@@ -108,7 +108,7 @@ foreach $stage(@stagelist){
         }
         if (! -s $targetseq){
             print "targetseq $targetseq does not exist. Ingore\n";
-            exit;
+            next;
         }
 
         my $seq = `cat $targetseq`;
